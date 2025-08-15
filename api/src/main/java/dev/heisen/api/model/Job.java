@@ -1,7 +1,7 @@
 package dev.heisen.api.model;
 
 import jakarta.persistence.*;
-import lombok.*; // Используем более точечные аннотации
+import lombok.*;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -12,13 +12,11 @@ import java.util.UUID;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Job {
 
     @Id
     private UUID id;
-
-    @Column(name = "user_id", nullable = false)
-    private UUID userId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -35,9 +33,15 @@ public class Job {
     @Lob
     private String stdin;
 
-    @Embedded
-    private JobResult result;
+    @Lob
+    private String stdout;
+
+    @Column(name = "exit_code")
+    private int exitCode;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
+
+    @Column(name = "finished_at")
+    private Instant finishedAt;
 }

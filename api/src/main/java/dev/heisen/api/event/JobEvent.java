@@ -9,7 +9,7 @@ import java.util.UUID;
 @Builder
 public record JobEvent(
         UUID jobId,
-        String userId,
+        UUID userId,
         Language lang,
         String codeRef,
         Instant createdAt

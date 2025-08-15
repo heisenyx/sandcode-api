@@ -2,8 +2,8 @@ package dev.heisen.api.controller;
 
 import dev.heisen.api.dto.JobRequest;
 import dev.heisen.api.dto.JobResponse;
-import dev.heisen.api.model.JobResult;
-import dev.heisen.api.model.JobStatus;
+import dev.heisen.api.dto.JobResultResponse;
+import dev.heisen.api.dto.JobStatusResponse;
 import dev.heisen.api.service.JobService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +33,7 @@ public class JobController {
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentContextPath()
-                .path("/{id}")
+                .path("/status/{id}")
                 .buildAndExpand(response.jobId())
                 .toUri();
 
@@ -41,18 +41,18 @@ public class JobController {
     }
 
     @GetMapping("/status/{id}")
-    public ResponseEntity<JobStatus> getStatus(
+    public ResponseEntity<JobStatusResponse> getJobStatus(
             @PathVariable UUID id
     ) {
-        JobStatus status = jobService.getStatus(id);
-        return ResponseEntity.ok().body(status);
+        JobStatusResponse response = jobService.getStatus(id);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/result/{id}")
-    public ResponseEntity<JobStatus> getStatus(
+    public ResponseEntity<JobResultResponse> getJobResult(
             @PathVariable UUID id
     ) {
-        JobStatus status = jobService.getResult(id);
-        return ResponseEntity.ok().body(status);
+        JobResultResponse response = jobService.getResult(id);
+        return ResponseEntity.ok().body(response);
     }
 }
