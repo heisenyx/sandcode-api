@@ -1,0 +1,55 @@
+services:
+  postgres-jobs:
+    image: postgres:17
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_jobs_data:/var/lib/postgresql/data
+    networks:
+      - platform-network
+    environment:
+      POSTGRES_DB: jobs
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres -d jobs" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  kafka:
+    image: bitnami/kafka:4.0
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    volumes:
+      - kafka_data:/bitnami
+    networks:
+      - platform-network
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_LISTENERS: >-
+        PLAINTEXT://:29092,
+        PLAINTEXT_HOST://:9092,
+        CONTROLLER://:9093
+      KAFKA_CFG_ADVERTISED_LISTENERS: >-
+        PLAINTEXT://kafka:29092,
+        PLAINTEXT_HOST://localhost:9092
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: >-
+        PLAINTEXT:PLAINTEXT,
+        PLAINTEXT_HOST:PLAINTEXT,
+        CONTROLLER:PLAINTEXT
+
+volumes:
+  postgres_jobs_data:
+    driver: local
+  kafka_data:
+    driver: local
+
+networks:
+  platform-network:
+    driver: bridge
