@@ -1,6 +1,5 @@
 package dev.heisen.api.service;
 
-import dev.heisen.api.dto.JobRequest;
 import dev.heisen.api.event.JobEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

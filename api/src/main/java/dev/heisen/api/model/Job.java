@@ -37,7 +37,7 @@ public class Job {
     private String stdout;
 
     @Column(name = "exit_code")
-    private int exitCode;
+    private Integer exitCode;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;

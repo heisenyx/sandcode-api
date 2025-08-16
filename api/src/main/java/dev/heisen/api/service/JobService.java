@@ -1,6 +1,6 @@
 package dev.heisen.api.service;
 
-import dev.heisen.api.JobNotFoundException;
+import dev.heisen.api.exception.JobNotFoundException;
 import dev.heisen.api.dto.JobRequest;
 import dev.heisen.api.dto.JobResponse;
 import dev.heisen.api.dto.JobResultResponse;
@@ -9,7 +9,6 @@ import dev.heisen.api.event.JobEvent;
 import dev.heisen.api.model.Job;
 import dev.heisen.api.model.JobStatus;
 import dev.heisen.api.repository.JobRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

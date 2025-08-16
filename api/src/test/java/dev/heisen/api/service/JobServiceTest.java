@@ -1,6 +1,6 @@
 package dev.heisen.api.service;
 
-import dev.heisen.api.JobNotFoundException;
+import dev.heisen.api.exception.JobNotFoundException;
 import dev.heisen.api.dto.JobRequest;
 import dev.heisen.api.dto.JobResponse;
 import dev.heisen.api.dto.JobResultResponse;
