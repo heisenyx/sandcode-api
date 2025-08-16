@@ -1,5 +1,6 @@
 package dev.heisen.api.service;
 
+import dev.heisen.api.JobNotFoundException;
 import dev.heisen.api.dto.JobRequest;
 import dev.heisen.api.dto.JobResponse;
 import dev.heisen.api.dto.JobResultResponse;
@@ -58,7 +59,7 @@ public class JobService {
         log.info("Getting job status with id {}", id);
 
         Job job = jobRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Job with id " + id + " not found")
+                () -> new JobNotFoundException("Job with id " + id + " not found")
         );
 
         return new JobStatusResponse(job.getStatus());
@@ -68,7 +69,7 @@ public class JobService {
         log.info("Getting job result with id {}", id);
 
         Job job = jobRepository.findById(id).orElseThrow(
-                () -> new EntityNotFoundException("Job with id " + id + " not found")
+                () -> new JobNotFoundException("Job with id " + id + " not found")
         );
 
         return new JobResultResponse(
