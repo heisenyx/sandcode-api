@@ -1,11 +1,12 @@
 package dev.heisen.api.service;
 
+import dev.heisen.api.event.JobResultEvent;
 import dev.heisen.api.exception.JobNotFoundException;
 import dev.heisen.api.dto.JobRequest;
 import dev.heisen.api.dto.JobResponse;
 import dev.heisen.api.dto.JobResultResponse;
 import dev.heisen.api.dto.JobStatusResponse;
-import dev.heisen.api.event.JobEvent;
+import dev.heisen.api.event.JobCompileEvent;
 import dev.heisen.api.model.Job;
 import dev.heisen.api.model.JobStatus;
 import dev.heisen.api.model.Language;
@@ -16,6 +17,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -29,6 +31,9 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class JobServiceTest {
+
+    @Value("${spring.kafka.producer.topic}")
+    private String producerTopic;
 
     @Mock
     private JobRepository jobRepository;
@@ -60,13 +65,13 @@ class JobServiceTest {
     @Test
     void testCreate_shouldSendKafkaEvent() {
         JobRequest jobRequest = new JobRequest(Language.JAVA, "System.out.println(\"Hello!\");", "");
-        ArgumentCaptor<JobEvent> eventCaptor = ArgumentCaptor.forClass(JobEvent.class);
+        ArgumentCaptor<JobCompileEvent> eventCaptor = ArgumentCaptor.forClass(JobCompileEvent.class);
 
         JobResponse jobResponse = jobService.create(jobRequest);
 
         assertThat(jobResponse).isNotNull();
-        verify(kafkaService).sendMessage(eq("job-create"), eventCaptor.capture());
-        JobEvent savedEvent = eventCaptor.getValue();
+        verify(kafkaService).sendMessage(eq(producerTopic), eventCaptor.capture());
+        JobCompileEvent savedEvent = eventCaptor.getValue();
 
         assertThat(savedEvent).isNotNull();
         assertThat(savedEvent.jobId()).isEqualTo(jobResponse.jobId());
@@ -115,6 +120,7 @@ class JobServiceTest {
                 .createdAt(Instant.now())
                 .code("System.out.println(\"Hello!\");")
                 .stdin("")
+                .stderr("")
                 .exitCode(0)
                 .stdout("Success")
                 .build();
@@ -136,5 +142,36 @@ class JobServiceTest {
         when(jobRepository.findById(jobId)).thenReturn(Optional.empty());
 
         assertThrows(JobNotFoundException.class, () -> jobService.getResult(jobId));
+    }
+
+    @Test
+    void testConsumeJobResult_shouldUpdateJob_whenJobExists() {
+        UUID jobId = UUID.randomUUID();
+        Job existingJob = Job.builder()
+                .id(jobId)
+                .status(JobStatus.PENDING)
+                .lang(Language.JAVA)
+                .code("System.out.println(\"Hello\");")
+                .stdin("")
+                .createdAt(Instant.now())
+                .build();
+
+        JobResultEvent event = new JobResultEvent(
+                jobId,
+                JobStatus.COMPLETED,
+                "Success",
+                "",
+                0,
+                Instant.now()
+        );
+
+        when(jobRepository.findById(jobId)).thenReturn(Optional.of(existingJob));
+
+        jobService.consumeJobResult(event);
+
+        verify(jobRepository).save(existingJob);
+        assertThat(existingJob.getStatus()).isEqualTo(JobStatus.COMPLETED);
+        assertThat(existingJob.getStdout()).isEqualTo("Success");
+        assertThat(existingJob.getExitCode()).isEqualTo(0);
     }
 }

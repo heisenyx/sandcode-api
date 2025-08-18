@@ -3,14 +3,13 @@ package dev.heisen.api.event;
 import dev.heisen.api.model.Language;
 import lombok.Builder;
 
-import java.time.Instant;
 import java.util.UUID;
 
 @Builder
-public record JobEvent(
+public record JobCompileEvent(
         UUID jobId,
         Language lang,
-        String codeRef,
-        Instant createdAt
+        String code,
+        String stdin
 ) {
 }

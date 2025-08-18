@@ -1,6 +1,6 @@
 package dev.heisen.api.service;
 
-import dev.heisen.api.event.JobEvent;
+import dev.heisen.api.event.JobCompileEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class KafkaService {
 
-    private final KafkaTemplate<String, JobEvent> kafkaTemplate;
+    private final KafkaTemplate<String, JobCompileEvent> kafkaTemplate;
 
-    public void sendMessage(String topic, JobEvent event) {
+    public void sendMessage(String topic, JobCompileEvent event) {
         log.info("Sending job request to topic {}", topic);
         kafkaTemplate.send(topic, event);
     }
