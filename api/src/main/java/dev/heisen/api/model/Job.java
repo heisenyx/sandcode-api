@@ -36,6 +36,9 @@ public class Job {
     @Lob
     private String stdout;
 
+    @Lob
+    private String stderr;
+
     @Column(name = "exit_code")
     private Integer exitCode;
 
